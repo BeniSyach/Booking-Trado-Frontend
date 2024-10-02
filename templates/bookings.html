@@ -1,100 +1,148 @@
-<!-- views/dashboard.html -->
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-            <div class="position-sticky">
-                <h5 class="text-center mt-3">Admin Dashboard</h5>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#!dashboard">
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#!bookings">
-                            Manage Bookings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <!-- <a class="nav-link" href="#!users"> -->
-                        <a class="nav-link">
-                            Manage Users
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#!logout" ng-click="logout()">
-                            Logout
-                        </a>
-                    </li>
-                </ul>
+<div class="content">
+  <h1>Daftar Booking Trado</h1>
+
+  <button
+    class="btn btn-primary mt-2 mb-4"
+    data-bs-toggle="modal"
+    data-bs-target="#bookingModal"
+    ng-click="resetForm()"
+  >
+    Tambah Booking
+  </button>
+
+  <table class="table table-bordered" ng-if="bookings.length > 0">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Nama Trado</th>
+        <th>Tanggal Check-in</th>
+        <th>Tanggal Check-out</th>
+        <th>Quantity</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="booking in bookings">
+        <td>{{ booking.id }}</td>
+        <td>{{ booking.trado.name }}</td>
+        <td>{{ booking.check_in }}</td>
+        <td>{{ booking.check_out }}</td>
+        <td>{{ booking.quantity }}</td>
+        <td>{{ booking.status }}</td>
+        <td>
+          <button
+            class="btn btn-warning btn-sm"
+            ng-click="editBooking(booking)"
+            data-bs-toggle="modal"
+            data-bs-target="#bookingModal"
+          >
+            Edit
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            ng-click="deleteBooking(booking)"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p ng-if="bookings.length == 0" class="text-center">
+    Tidak ada pemesanan yang ditemukan.
+  </p>
+
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="bookingModal"
+    tabindex="-1"
+    aria-labelledby="bookingModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookingModalLabel">
+            {{ isEdit ? 'Edit Booking' : 'Tambah Booking' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form ng-submit="submitBooking()">
+            <div class="mb-3">
+              <label for="trado" class="form-label">Pilih Trado</label>
+              <select
+                class="form-select"
+                id="trado"
+                ng-model="booking.trado_id"
+                required
+              >
+                <option ng-repeat="trado in trados" ng-value="trado.id">
+                  {{ trado.name }}
+                </option>
+              </select>
             </div>
-        </nav>
+            <div class="mb-3">
+              <label for="check_in" class="form-label">Tanggal Check-in</label>
+              <input
+                type="date"
+                class="form-control"
+                id="check_in"
+                ng-model="booking.check_in"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="check_out" class="form-label"
+                >Tanggal Check-out</label
+              >
+              <input
+                type="date"
+                class="form-control"
+                id="check_out"
+                ng-model="booking.check_out"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Jumlah (Quantity)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="quantity"
+                ng-model="booking.quantity"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">
+              {{ isEdit ? 'Update Booking' : 'Tambah Booking' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              ng-click="resetBooking()"
+              ng-if="isEdit"
+            >
+              Batal
+            </button>
 
-        <!-- Main Content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <h1>Daftar Booking Trado</h1>
-
-
-            
-                    <table class="table table-bordered" ng-if="bookings.length > 0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nama Trado</th>
-                                <th>Tanggal Check-in</th>
-                                <th>Tanggal Check-out</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="booking in bookings">
-                                <td>{{ booking.id }}</td>
-                                <td>{{ booking.trado.name }}</td>
-                                <td>{{ booking.check_in }}</td>
-                                <td>{{ booking.check_out }}</td>
-                                <td>{{ booking.quantity }}</td>
-                                <td>{{ booking.status }}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" ng-click="editBooking(booking)">Edit</button>
-                                    <button class="btn btn-danger btn-sm" ng-click="deleteBooking(booking)">Delete</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-            
-                    <p ng-if="bookings.length == 0" class="text-center">Tidak ada pemesanan yang ditemukan.</p>
-            
-                    <h3 class="mt-4">Tambah/Update Booking</h3>
-                    <form ng-submit="submitBooking()">
-                        <div class="mb-3">
-                            <label for="trado" class="form-label">Pilih Trado</label>
-                            <select class="form-select" id="trado" ng-model="booking.trado_id" required>
-                                <option ng-repeat="trado in trados" ng-value="trado.id" >{{ trado.name }}</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="check_in" class="form-label">Tanggal Check-in</label>
-                            <input type="date" class="form-control" id="check_in" ng-model="booking.check_in" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="check_out" class="form-label">Tanggal Check-out</label>
-                            <input type="date" class="form-control" id="check_out" ng-model="booking.check_out" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Jumlah (Quantity)</label>
-                            <input type="number" class="form-control" id="quantity" ng-model="booking.quantity" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update Booking' : 'Tambah Booking' }}</button>
-                        <button type="button" class="btn btn-secondary" ng-click="cancelEdit()" ng-if="isEdit">Batal</button>
-                    </form>
-  
-
-
-        </main>
+            <!-- Spinner Loading -->
+            <div ng-show="isLoading" class="text-center mt-2">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
-
-

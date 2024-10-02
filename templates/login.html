@@ -1,16 +1,51 @@
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <h2 class="text-center">Login</h2>
-        <form ng-submit="login()">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" ng-model="user.email" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" ng-model="user.password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-card-body">
+      <div class="text-center">
+        <h2>Login</h2>
+      </div>
+      <form ng-submit="login()">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            ng-model="user.email"
+            placeholder="Enter Your email"
+            required
+          />
+          <div id="emailHelp" class="form-text">
+            We'll never share your email with anyone else.
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            ng-model="user.password"
+            placeholder="Enter Your Password"
+            required
+          />
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary" ng-disabled="isLoading">
+            <span ng-if="!isLoading">Login</span>
+            <span
+              ng-if="isLoading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            <span ng-if="isLoading"> Logging in...</span>
+          </button>
+        </div>
+        <!-- <div class="mt-3 text-center">
+          <p>Don't have an account? <a href="#">Sign up</a></p>
+        </div> -->
+      </form>
     </div>
+  </div>
 </div>
