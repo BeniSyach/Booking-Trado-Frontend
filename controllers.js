@@ -43,12 +43,68 @@ app.controller(
 
 app.controller(
   "DashboardController",
-  function ($scope, $location, AuthService) {
-    $scope.message = "Welcome to the Admin Dashboard!";
+  function ($scope, $location, AuthService, TradoService, $timeout) {
+    $scope.availableTrados = [];
+    $scope.availability = {
+      check_in: null,
+      check_out: null,
+    };
+    $scope.isLoading = false;
 
+    $scope.checkAvailability = function () {
+      if ($scope.availability.check_in && $scope.availability.check_out) {
+        $scope.isLoading = true;
+
+        $timeout(function () {
+          TradoService.checkAvailability(
+            $scope.availability.check_in,
+            $scope.availability.check_out
+          )
+            .then(function (response) {
+              $scope.availableTrados = response.data;
+              $scope.isLoading = false;
+
+              if ($scope.availableTrados.length > 0) {
+                Swal.fire({
+                  title: "Ketersediaan Ditemukan",
+                  text: "Trado tersedia untuk tanggal yang dipilih!",
+                  icon: "success",
+                  confirmButtonText: "OK",
+                });
+              } else {
+                Swal.fire({
+                  title: "Tidak Ada Ketersediaan",
+                  text: "Tidak ada trado yang tersedia untuk tanggal yang dipilih.",
+                  icon: "warning",
+                  confirmButtonText: "OK",
+                });
+              }
+            })
+            .catch(function (error) {
+              $scope.isLoading = false;
+              console.error("Error checking availability:", error);
+              Swal.fire({
+                title: "Kesalahan",
+                text: "Gagal memeriksa ketersediaan trado.",
+                icon: "error",
+                confirmButtonText: "OK",
+              });
+            });
+        }, 1000);
+      } else {
+        Swal.fire({
+          title: "Form Tidak Lengkap",
+          text: "Silakan isi tanggal check-in dan check-out.",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+      }
+    };
+
+    // Function for logging out
     $scope.logout = function () {
       AuthService.logout();
-      $location.path("/login"); // Arahkan kembali ke login setelah logout
+      $location.path("/login");
     };
   }
 );
@@ -175,6 +231,10 @@ app.controller(
             });
         }
       });
+    };
+
+    $scope.viewBooking = function (booking) {
+      $scope.booking = angular.copy(booking);
     };
 
     // Mengatur ulang booking

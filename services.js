@@ -59,5 +59,10 @@ app.factory("TradoService", function ($http) {
         headers: { Authorization: "Bearer " + token },
       });
     },
+    checkAvailability: function (check_in, check_out) {
+      return $http.get("http://localhost:8000/api/trados/availability", {
+        params: { check_in: check_in, check_out: check_out },
+      });
+    },
   };
 });

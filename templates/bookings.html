@@ -32,6 +32,14 @@
         <td>{{ booking.status }}</td>
         <td>
           <button
+            class="btn btn-info btn-sm"
+            ng-click="viewBooking(booking)"
+            data-bs-toggle="modal"
+            data-bs-target="#viewBookingModal"
+          >
+            Lihat
+          </button>
+          <button
             class="btn btn-warning btn-sm"
             ng-click="editBooking(booking)"
             data-bs-toggle="modal"
@@ -54,7 +62,6 @@
     Tidak ada pemesanan yang ditemukan.
   </p>
 
-  <!-- Modal -->
   <div
     class="modal fade"
     id="bookingModal"
@@ -141,6 +148,36 @@
               </div>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="viewBookingModal"
+    tabindex="-1"
+    aria-labelledby="viewBookingModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewBookingModalLabel">Detail Booking</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <h6>ID: {{ booking.id }}</h6>
+          <p><strong>Nama Trado:</strong> {{ booking.trado.name }}</p>
+          <p><strong>Tanggal Check-in:</strong> {{ booking.check_in }}</p>
+          <p><strong>Tanggal Check-out:</strong> {{ booking.check_out }}</p>
+          <p><strong>Jumlah (Quantity):</strong> {{ booking.quantity }}</p>
+          <p><strong>Status:</strong> {{ booking.status }}</p>
         </div>
       </div>
     </div>
