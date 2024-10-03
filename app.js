@@ -10,7 +10,6 @@ app.config(function ($routeProvider) {
       templateUrl: "templates/dashboard.html",
       controller: "DashboardController",
       resolve: {
-        // Menjaga agar hanya pengguna yang sudah login yang bisa mengakses
         auth: function (AuthService, $location) {
           if (!AuthService.isLoggedIn()) {
             $location.path("/login");

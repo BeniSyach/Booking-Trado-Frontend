@@ -31,7 +31,6 @@
     </div>
   </form>
 
-  <!-- Loading spinner -->
   <div class="d-flex justify-content-center mt-3" ng-if="isLoading">
     <div class="spinner-border" role="status">
       <span class="visually-hidden">Loading...</span>
@@ -39,16 +38,16 @@
   </div>
 
   <div class="row mt-4" ng-if="!isLoading">
-    <!-- Card template for each available Trado -->
     <div class="col-md-4" ng-repeat="trado in availableTrados">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">{{ trado.name }}</h5>
           <p class="card-text">
             Kapasitas: {{ trado.capacity }} <br />
+            Kapasitas Tersedia: {{ trado.available_quantity }} <br />
             Status: {{ trado.status }}
           </p>
-          <a href="#" class="btn btn-success">Pesan</a>
+          <button class="btn btn-success" ng-click="openBookingModal(trado)">Pesan</button>
         </div>
       </div>
     </div>
@@ -58,3 +57,49 @@
     Tidak ada trado yang tersedia untuk tanggal yang dipilih.
   </p>
 </div>
+
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="bookingModalLabel">
+                  {{ isEdit ? 'Edit Booking' : 'Tambah Booking' }}
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form ng-submit="submitBooking()">
+                  <div class="mb-3">
+                      <label for="trado" class="form-label">Pilih Trado</label>
+                      <select class="form-select" id="trado" ng-model="booking.trado_id" required>
+                          <option ng-repeat="trado in availableTrados" ng-value="trado.id">
+                              {{ trado.name }}
+                          </option>
+                      </select>
+                  </div>
+                  <div class="mb-3">
+                      <label for="check_in" class="form-label">Tanggal Check-in</label>
+                      <input type="date" class="form-control" id="check_in" ng-model="booking.check_in" required />
+                  </div>
+                  <div class="mb-3">
+                      <label for="check_out" class="form-label">Tanggal Check-out</label>
+                      <input type="date" class="form-control" id="check_out" ng-model="booking.check_out" required />
+                  </div>
+                  <div class="mb-3">
+                      <label for="quantity" class="form-label">Jumlah (Quantity)</label>
+                      <input type="number" class="form-control" id="quantity" ng-model="booking.quantity" required />
+                  </div>
+                  <button type="submit" class="btn btn-primary">{{ isEdit ? 'Update Booking' : 'Tambah Booking' }}</button>
+                  <button type="button" class="btn btn-secondary" ng-click="resetBooking()" ng-if="isEdit">Batal</button>
+
+                  <div ng-show="isLoading" class="text-center mt-2">
+                      <div class="spinner-border" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+

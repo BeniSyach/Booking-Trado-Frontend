@@ -16,15 +16,13 @@ app.controller(
             timer: 1500,
           });
 
-          // Simpan token dan alihkan ke dashboard setelah beberapa saat
           localStorage.setItem("token", response.data.token);
           setTimeout(function () {
             $location.path("/dashboard");
-            $scope.$apply(); // pastikan view diupdate
+            $scope.$apply(); 
           }, 1600);
         })
         .catch(function (error) {
-          // Jika login gagal, tampilkan SweetAlert error
           Swal.fire({
             icon: "error",
             title: "Login Gagal",
@@ -35,7 +33,7 @@ app.controller(
           });
         })
         .finally(function () {
-          $scope.isLoading = false; // set loading false setelah proses selesai
+          $scope.isLoading = false; 
         });
     };
   }
@@ -43,13 +41,20 @@ app.controller(
 
 app.controller(
   "DashboardController",
-  function ($scope, $location, AuthService, TradoService, $timeout) {
+  function ($scope, $location, AuthService, TradoService, BookingService, $timeout) {
     $scope.availableTrados = [];
     $scope.availability = {
-      check_in: null,
-      check_out: null,
+        check_in: null,
+        check_out: null,
     };
     $scope.isLoading = false;
+    $scope.booking = {
+        trado_id: null,
+        check_in: null,
+        check_out: null,
+        quantity: 1,
+    };
+    $scope.isEdit = false;
 
     $scope.checkAvailability = function () {
       if ($scope.availability.check_in && $scope.availability.check_out) {
@@ -65,12 +70,12 @@ app.controller(
               $scope.isLoading = false;
 
               if ($scope.availableTrados.length > 0) {
-                Swal.fire({
-                  title: "Ketersediaan Ditemukan",
-                  text: "Trado tersedia untuk tanggal yang dipilih!",
-                  icon: "success",
-                  confirmButtonText: "OK",
-                });
+                // Swal.fire({
+                //   title: "Ketersediaan Ditemukan",
+                //   text: "Trado tersedia untuk tanggal yang dipilih!",
+                //   icon: "success",
+                //   confirmButtonText: "OK",
+                // });
               } else {
                 Swal.fire({
                   title: "Tidak Ada Ketersediaan",
@@ -100,12 +105,48 @@ app.controller(
         });
       }
     };
+    $scope.openBookingModal = function (trado) {
+      $scope.booking.trado_id = trado.id; 
+      $scope.booking.check_in = $scope.availability.check_in; 
+      $scope.booking.check_out = $scope.availability.check_out; 
+      $scope.booking.quantity = 1;
+      $scope.isEdit = false;
+      $scope.isLoading = false; 
+      $('#bookingModal').modal('show'); 
+  };
 
-    // Function for logging out
-    $scope.logout = function () {
+
+  $scope.submitBooking = function () {
+      $scope.isLoading = true;
+
+      BookingService.createBooking($scope.booking)
+          .then(function (response) {
+              $scope.isLoading = false;
+              $('#bookingModal').modal('hide'); 
+              Swal.fire({
+                  title: "Booking Berhasil!",
+                  text: "Trado berhasil dipesan.",
+                  icon: "success",
+                  confirmButtonText: "OK",
+              });
+              $scope.checkAvailability();
+          })
+          .catch(function (error) {
+              $scope.isLoading = false;
+              console.error("Error creating booking:", error);
+              Swal.fire({
+                  title: "Kesalahan",
+                  text: "Gagal membuat booking.",
+                  icon: "error",
+                  confirmButtonText: "OK",
+              });
+          });
+  };
+
+  $scope.logout = function () {
       AuthService.logout();
       $location.path("/login");
-    };
+  };
   }
 );
 
@@ -145,7 +186,6 @@ app.controller(
         });
     };
 
-    // Simpan Booking (Tambah/Update)
     $scope.submitBooking = function () {
       Swal.fire({
         title: "Memuat...",
@@ -161,6 +201,8 @@ app.controller(
           .then(function (response) {
             $scope.loadBookings();
             $scope.resetBooking();
+            // Tutup modal setelah berhasil memperbarui booking
+            $('#bookingModal').modal('hide');
             Swal.fire("Sukses", "Booking berhasil diperbarui!", "success");
           })
           .catch(function (error) {
@@ -168,9 +210,7 @@ app.controller(
             Swal.fire(
               "Kesalahan",
               "Gagal memperbarui booking: " +
-                (error.data?.error ||
-                  error.message ||
-                  "Kesalahan tidak dikenal"),
+                (error.data?.error || error.message || "Kesalahan tidak dikenal"),
               "error"
             );
           });
@@ -179,6 +219,8 @@ app.controller(
           .then(function (response) {
             $scope.loadBookings();
             $scope.resetBooking();
+            // Tutup modal setelah berhasil membuat booking
+            $('#bookingModal').modal('hide');
             Swal.fire("Sukses", "Booking berhasil dibuat!", "success");
           })
           .catch(function (error) {
@@ -186,22 +228,24 @@ app.controller(
             Swal.fire(
               "Kesalahan",
               "Gagal membuat booking: " +
-                (error.data?.error ||
-                  error.message ||
-                  "Kesalahan tidak dikenal"),
+                (error.data?.error || error.message || "Kesalahan tidak dikenal"),
               "error"
             );
           });
       }
     };
 
-    // Mengedit Booking
     $scope.editBooking = function (booking) {
       $scope.booking = angular.copy(booking);
-      $scope.isEdit = true; // Set ke status edit
+      if (booking.check_in) {
+        $scope.booking.check_in = new Date(booking.check_in);
+      }
+      if (booking.check_out) {
+        $scope.booking.check_out = new Date(booking.check_out);
+      }
+      $scope.isEdit = true; 
     };
 
-    // Menghapus Booking
     $scope.deleteBooking = function (booking) {
       Swal.fire({
         title: "Apakah Anda yakin?",
@@ -237,10 +281,9 @@ app.controller(
       $scope.booking = angular.copy(booking);
     };
 
-    // Mengatur ulang booking
     $scope.resetBooking = function () {
       $scope.booking = {};
-      $scope.isEdit = false; // Kembali ke status tambah
+      $scope.isEdit = false; 
     };
 
     $scope.loadBookings();
@@ -254,11 +297,11 @@ app.controller("SidebarController", function ($scope, $location, AuthService) {
   };
 
   $scope.isLoginPage = function () {
-    return $location.path() === "/login"; // Sesuaikan dengan rute login Anda
+    return $location.path() === "/login";
   };
 
   $scope.logout = function () {
     AuthService.logout();
-    $location.path("/login"); // Redirect ke halaman login setelah logout
+    $location.path("/login");
   };
 });
